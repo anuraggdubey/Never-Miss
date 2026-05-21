@@ -19,7 +19,7 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { user, signInWithGoogle, signOutUser } = useAuth();
+  const { user, signInWithGoogle } = useAuth();
 
   return (
     <div className="min-h-screen bg-bg text-ink">
@@ -57,12 +57,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <div className="ml-auto flex items-center gap-2 md:ml-0">
                 {user ? (
-                  <>
-                    <span className="chip max-w-[8rem] truncate sm:max-w-[12rem]">{user.displayName ?? user.email ?? "Signed in"}</span>
-                    <button className="btn-ghost !px-3 !py-2 text-sm sm:!px-4" onClick={() => void signOutUser()}>
-                      Sign out
-                    </button>
-                  </>
+                  <Link href="/settings" className="btn-ghost !px-3 !py-2 text-sm sm:!px-4">
+                    Settings
+                  </Link>
                 ) : (
                   <button className="btn-primary !px-3 !py-2 text-sm sm:!px-4" onClick={() => void signInWithGoogle()}>
                     Sign in

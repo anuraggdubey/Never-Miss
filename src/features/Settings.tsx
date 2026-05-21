@@ -3,7 +3,7 @@
 import type { ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, Clock3, Lock, Moon, Sun } from "lucide-react";
+import { Bell, Clock3, Lock, LogOut, Moon, Sun } from "lucide-react";
 import AuthPrompt from "../components/AuthPrompt";
 import PushCard from "../components/push-card";
 import { useAuth } from "../lib/auth";
@@ -11,7 +11,7 @@ import { defaultSettings, type NotificationRhythm, type UserSettings } from "../
 import { subscribeToSettings, updateSettings } from "../lib/firestore";
 
 export default function Settings() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOutUser } = useAuth();
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
 
   useEffect(() => {
@@ -99,6 +99,12 @@ export default function Settings() {
 
           <Row icon={Clock3} title="Timezone" subtitle="Used to schedule reminders for this account.">
             <span className="chip">{settings.timezone}</span>
+          </Row>
+
+          <Row icon={LogOut} title="Account" subtitle="Sign out from this device when you need to.">
+            <button className="btn-ghost w-full sm:w-auto" onClick={() => void signOutUser()}>
+              Sign out
+            </button>
           </Row>
 
           <PushCard />
