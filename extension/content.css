@@ -1,0 +1,46 @@
+.nm-popup {
+  position: fixed; right: 24px; bottom: 24px; z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+  opacity: 0; transform: translateY(16px) scale(.96); filter: blur(8px);
+  transition: opacity .35s cubic-bezier(.22,1,.36,1), transform .45s cubic-bezier(.22,1,.36,1), filter .35s;
+  width: 360px;
+}
+.nm-popup.nm-in { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+.nm-card {
+  position: relative; padding: 18px; border-radius: 24px;
+  background: linear-gradient(180deg, #fbf9ff 0%, #f3eeff 100%);
+  box-shadow: 18px 18px 40px rgba(120, 100, 180, .25), -10px -10px 30px rgba(255,255,255,.85),
+              0 0 60px rgba(150, 120, 240, .25);
+  color: #1a1530;
+}
+.nm-card::before {
+  content: ""; position: absolute; inset: -1px; border-radius: 25px;
+  background: linear-gradient(135deg, rgba(150,120,240,.4), rgba(120,180,255,.3));
+  z-index: -1; filter: blur(20px); opacity: .6;
+}
+.nm-row { display: flex; align-items: flex-start; gap: 12px; }
+.nm-icon {
+  width: 36px; height: 36px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #fff, #ece5ff);
+  box-shadow: inset 4px 4px 8px rgba(150,130,200,.25), inset -4px -4px 8px rgba(255,255,255,.9);
+  color: #6b4fdc; font-size: 16px;
+}
+.nm-body { flex: 1; }
+.nm-eyebrow { font-size: 11px; color: #6f6890; }
+.nm-title { font-size: 16px; line-height: 1.35; margin-top: 2px; font-weight: 500; font-family: "Instrument Serif", Georgia, serif; font-size: 19px; }
+.nm-close { background: none; border: 0; cursor: pointer; color: #aaa; font-size: 20px; padding: 0 4px; line-height: 1; }
+.nm-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.nm-btn {
+  padding: 9px 13px; border-radius: 14px; border: 0; cursor: pointer; font-size: 12.5px; font-weight: 500;
+  background: #f5f0ff; color: #2a2050;
+  box-shadow: 4px 4px 10px rgba(140,120,190,.2), -4px -4px 10px rgba(255,255,255,.9);
+  transition: transform .15s, box-shadow .2s;
+}
+.nm-btn:hover { transform: translateY(-1px); }
+.nm-btn:active { box-shadow: inset 3px 3px 6px rgba(140,120,190,.3), inset -3px -3px 6px rgba(255,255,255,.7); }
+.nm-primary {
+  background: linear-gradient(135deg, #8b6fe6, #7aa8f0); color: #fff;
+  box-shadow: 0 8px 24px rgba(140,110,230,.45);
+}
+.nm-ghost { background: transparent; box-shadow: none; color: #6f6890; }
+.nm-saved { display: flex; gap: 12px; align-items: center; }

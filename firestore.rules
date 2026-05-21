@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function hasOnlyKeys(allowed) {
+      return request.resource.data.keys().hasOnly(allowed);
+    }
+
+    function isUserProfile() {
+      return hasOnlyKeys(['displayName', 'email', 'photoURL', 'createdAt', 'updatedAt']) &&
+        request.resource.data.displayName is string &&
+        request.resource.data.email is string &&
+        request.resource.data.photoURL is string;
+    }
+
+    function isMoment() {
+      return hasOnlyKeys([
+          'name', 'occasion', 'date', 'time', 'relation', 'note', 'source', 'yearsTracked',
+          'emoji', 'color', 'createdAt', 'updatedAt'
+        ]) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() > 0 &&
+        request.resource.data.occasion in ['birthday', 'anniversary', 'milestone', 'memory'] &&
+        request.resource.data.date is string &&
+        (!('time' in request.resource.data) || request.resource.data.time is string) &&
+        (!('relation' in request.resource.data) || request.resource.data.relation is string) &&
+        (!('note' in request.resource.data) || request.resource.data.note is string) &&
+        (!('source' in request.resource.data) || request.resource.data.source is string) &&
+        request.resource.data.yearsTracked is int;
+    }
+
+    function isWish() {
+      return hasOnlyKeys(['personName', 'tone', 'occasion', 'details', 'message', 'createdAt']) &&
+        request.resource.data.personName is string &&
+        request.resource.data.tone is string &&
+        (!('occasion' in request.resource.data) || request.resource.data.occasion in ['birthday', 'anniversary', 'milestone', 'memory']) &&
+        (!('details' in request.resource.data) || request.resource.data.details is string) &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() > 0;
+    }
+
+    function isDevice() {
+      return hasOnlyKeys(['token', 'platform', 'userAgent', 'notificationEnabled', 'createdAt', 'updatedAt']) &&
+        request.resource.data.token is string &&
+        request.resource.data.platform == 'web' &&
+        request.resource.data.userAgent is string &&
+        request.resource.data.notificationEnabled is bool;
+    }
+
+    function isSettings() {
+      return hasOnlyKeys(['theme', 'notificationRhythm', 'timezone', 'createdAt', 'updatedAt']) &&
+        request.resource.data.theme in ['light', 'dark'] &&
+        request.resource.data.notificationRhythm in ['day_before', 'ten_minutes_before', 'both'] &&
+        request.resource.data.timezone is string;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isUserProfile();
+      allow delete: if isOwner(userId);
+
+      match /meta/{documentId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) &&
+          (
+            (documentId == 'settings' && isSettings()) ||
+            (documentId != 'settings')
+          );
+        allow delete: if isOwner(userId);
+      }
+
+      match /moments/{momentId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isMoment();
+        allow delete: if isOwner(userId);
+      }
+
+      match /wishes/{wishId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isWish();
+        allow delete: if isOwner(userId);
+      }
+
+      match /devices/{deviceId} {
+        allow read: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isDevice();
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

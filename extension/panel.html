@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>NeverMiss</title>
+<style>
+  body { margin: 0; padding: 22px; font-family: -apple-system, "Inter", sans-serif;
+    background: radial-gradient(60% 40% at 20% 0%, #efe5ff, transparent), linear-gradient(180deg, #fbf9ff, #efe9ff);
+    color: #1a1530; min-height: 100vh; }
+  h1 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; margin: 0 0 4px; font-size: 30px; }
+  .eyebrow { font-size: 11px; color: #6f6890; text-transform: uppercase; letter-spacing: .08em; }
+  .card { padding: 16px; border-radius: 22px; background: #f5f0ff;
+    box-shadow: 10px 10px 24px rgba(140,120,190,.22), -8px -8px 20px rgba(255,255,255,.9); margin: 12px 0; }
+  .hero { background: linear-gradient(135deg,#fff,#ece5ff); }
+  .row { display:flex; gap:12px; align-items:center; }
+  .dot { width:42px; height:42px; border-radius:14px; background: linear-gradient(135deg,#fff,#ddd2ff);
+    box-shadow: inset 4px 4px 8px rgba(150,130,200,.25), inset -4px -4px 8px rgba(255,255,255,.9);
+    display:grid; place-items:center; font-size:20px; }
+  .name { font-weight:500; font-size: 15px; }
+  .small { font-size:12px; color:#6f6890; }
+  button { padding:8px 14px; border:0; border-radius: 12px; cursor:pointer;
+    background: linear-gradient(135deg, #8b6fe6, #7aa8f0); color:#fff; font-weight:500; font-size: 12px;
+    box-shadow: 0 6px 18px rgba(140,110,230,.4); }
+  .ghost { background: #f5f0ff; color:#2a2050;
+    box-shadow: 4px 4px 10px rgba(140,120,190,.2), -4px -4px 10px rgba(255,255,255,.9); }
+  .actions { display:flex; gap:8px; margin-top: 12px; }
+</style></head>
+<body>
+  <div class="eyebrow">Side panel</div>
+  <h1>NeverMiss</h1>
+
+  <div class="card hero">
+    <div class="eyebrow">Tomorrow</div>
+    <div style="font-family: 'Instrument Serif', Georgia, serif; font-size: 22px; margin: 6px 0 4px;">Rahul's birthday 🪐</div>
+    <div class="small">Loves vinyl & ramen. You wished him for 3 years now.</div>
+    <div class="actions">
+      <button>✨ Draft a wish</button>
+      <button class="ghost">Snooze 1h</button>
+    </div>
+  </div>
+
+  <div class="eyebrow" style="margin-top:18px;">Coming up</div>
+
+  <div class="card"><div class="row"><div class="dot">💌</div>
+    <div><div class="name">Sara · anniversary</div><div class="small">In 9 days</div></div></div></div>
+  <div class="card"><div class="row"><div class="dot">🤍</div>
+    <div><div class="name">Mom · birthday</div><div class="small">In 21 days</div></div></div></div>
+  <div class="card"><div class="row"><div class="dot">🌸</div>
+    <div><div class="name">Aanya · milestone</div><div class="small">In 34 days</div></div></div></div>
+</body></html>

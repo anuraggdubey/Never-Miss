@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "NeverMiss - Remember every moment",
+  "version": "0.1.0",
+  "description": "An emotionally intelligent companion that quietly remembers birthdays, anniversaries and special moments while you type.",
+  "permissions": ["storage", "notifications", "alarms", "activeTab", "sidePanel"],
+  "host_permissions": [
+    "*://web.whatsapp.com/*",
+    "*://www.instagram.com/*",
+    "*://web.telegram.org/*",
+    "*://www.linkedin.com/*",
+    "*://mail.google.com/*",
+    "*://twitter.com/*",
+    "*://x.com/*",
+    "*://www.messenger.com/*",
+    "*://discord.com/*"
+  ],
+  "action": { "default_popup": "popup.html", "default_icon": "icon.png" },
+  "side_panel": { "default_path": "panel.html" },
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://web.whatsapp.com/*",
+        "*://www.instagram.com/*",
+        "*://web.telegram.org/*",
+        "*://www.linkedin.com/*",
+        "*://mail.google.com/*",
+        "*://twitter.com/*",
+        "*://x.com/*",
+        "*://www.messenger.com/*",
+        "*://discord.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": { "16": "icon.png", "48": "icon.png", "128": "icon.png" }
+}

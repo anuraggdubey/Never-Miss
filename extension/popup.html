@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>NeverMiss</title>
+<style>
+  body { width: 320px; margin: 0; padding: 18px; font-family: -apple-system, "Inter", sans-serif;
+    background: linear-gradient(180deg, #fbf9ff, #efe9ff); color: #1a1530; }
+  h1 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; margin: 0 0 4px; font-size: 26px; }
+  p { color: #6f6890; font-size: 13px; margin: 0 0 14px; line-height: 1.5; }
+  .card { padding: 14px; border-radius: 18px; background: #f5f0ff;
+    box-shadow: 6px 6px 16px rgba(140,120,190,.2), -6px -6px 16px rgba(255,255,255,.9); margin-bottom: 10px; }
+  .row { display:flex; gap:10px; align-items:center; }
+  .dot { width:34px; height:34px; border-radius:12px; background: linear-gradient(135deg,#fff,#ece5ff);
+    box-shadow: inset 4px 4px 8px rgba(150,130,200,.25), inset -4px -4px 8px rgba(255,255,255,.9);
+    display:grid; place-items:center; font-size:16px; }
+  .name { font-weight:500; }
+  .small { font-size:11px; color:#6f6890; }
+  button { width:100%; margin-top: 8px; padding:10px; border:0; border-radius: 14px; cursor:pointer;
+    background: linear-gradient(135deg, #8b6fe6, #7aa8f0); color:#fff; font-weight:500;
+    box-shadow: 0 8px 20px rgba(140,110,230,.4); }
+</style></head>
+<body>
+  <h1>NeverMiss</h1>
+  <p>Quietly remembering the people who matter.</p>
+  <div class="card">
+    <div class="row"><div class="dot">🪐</div>
+      <div><div class="name">Rahul · birthday</div><div class="small">Tomorrow · tracked 3 years</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><div class="dot">💌</div>
+      <div><div class="name">Sara · anniversary</div><div class="small">In 9 days</div></div>
+    </div>
+  </div>
+  <button onclick="chrome.sidePanel && chrome.windows.getCurrent(w => chrome.sidePanel.open({windowId: w.id}))">Open side panel</button>
+</body></html>
