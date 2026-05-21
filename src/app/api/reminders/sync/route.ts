@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     await Promise.all(momentsSnap.docs.map((doc) => {
-      const moment = doc.data() as { date?: string; time?: string };
+      const moment = doc.data() as { date?: string; time?: string; alertDate?: string; alertTime?: string };
       if (!moment.date) return Promise.resolve();
 
       return scheduleReminderTasks({
@@ -40,6 +40,8 @@ export async function POST(request: Request) {
         moment: {
           date: moment.date,
           time: moment.time,
+          alertDate: moment.alertDate,
+          alertTime: moment.alertTime,
         },
         notificationRhythm,
         timeZone,

@@ -34,7 +34,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </span>
                 <div className="min-w-0">
                   <div className="font-display text-2xl leading-none">NeverMiss</div>
-                  <div className="text-xs text-ink/45">A calm place to remember people well.</div>
                 </div>
               </Link>
 
@@ -86,22 +85,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             {children}
           </motion.main>
         </AnimatePresence>
-
-        <footer className="pb-6 pt-2">
-          <div className="glass rounded-[2rem] px-4 py-4 shadow-neu-sm">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="font-display text-xl">Made to feel light.</div>
-                <p className="mt-1 text-sm text-ink/55">Your upcoming moments, wishes, and reminders stay close without crowding the screen.</p>
-              </div>
-              <div className="flex flex-wrap gap-2 text-xs text-ink/55">
-                <span className="chip">Installable</span>
-                <span className="chip">Quiet reminders</span>
-                <span className="chip">Simple timeline</span>
-              </div>
-            </div>
-          </div>
-        </footer>
 
         <nav className="fixed bottom-3 inset-x-3 z-40 mx-auto w-auto max-w-md lg:hidden">
           <div className="glass mx-auto flex items-stretch gap-1 overflow-x-auto rounded-[2rem] px-2 py-2 shadow-[0_20px_60px_rgba(58,43,101,0.24)]">

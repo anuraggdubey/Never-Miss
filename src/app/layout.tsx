@@ -8,12 +8,14 @@ import "./globals.css";
 const sans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  preload: false,
 });
 
 const display = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-display",
   weight: "400",
+  preload: false,
 });
 
 export const metadata: Metadata = {

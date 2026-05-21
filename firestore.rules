@@ -17,8 +17,8 @@ service cloud.firestore {
     }
 
     function isMoment() {
-      return hasOnlyKeys([
-          'name', 'occasion', 'date', 'time', 'relation', 'note', 'source', 'yearsTracked',
+        return hasOnlyKeys([
+          'name', 'occasion', 'date', 'time', 'alertDate', 'alertTime', 'relation', 'note', 'source', 'yearsTracked',
           'emoji', 'color', 'createdAt', 'updatedAt'
         ]) &&
         request.resource.data.name is string &&
@@ -26,6 +26,8 @@ service cloud.firestore {
         request.resource.data.occasion in ['birthday', 'anniversary', 'milestone', 'memory'] &&
         request.resource.data.date is string &&
         (!('time' in request.resource.data) || request.resource.data.time is string) &&
+        (!('alertDate' in request.resource.data) || request.resource.data.alertDate is string) &&
+        (!('alertTime' in request.resource.data) || request.resource.data.alertTime is string) &&
         (!('relation' in request.resource.data) || request.resource.data.relation is string) &&
         (!('note' in request.resource.data) || request.resource.data.note is string) &&
         (!('source' in request.resource.data) || request.resource.data.source is string) &&

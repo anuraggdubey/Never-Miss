@@ -22,6 +22,8 @@ export interface Moment {
   occasion: Occasion;
   date: string;
   time?: string;
+  alertDate?: string;
+  alertTime?: string;
   relation?: string;
   note?: string;
   source?: string;

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       const timeZone = typeof settings.timezone === "string" && settings.timezone ? settings.timezone : "UTC";
 
       for (const momentDoc of momentsSnap.docs) {
-        const moment = momentDoc.data() as { date?: string; time?: string };
+        const moment = momentDoc.data() as { date?: string; time?: string; alertDate?: string; alertTime?: string };
         if (!moment.date) continue;
 
         await scheduleReminderTasks({
@@ -42,6 +42,8 @@ export async function POST(request: Request) {
           moment: {
             date: moment.date,
             time: moment.time,
+            alertDate: moment.alertDate,
+            alertTime: moment.alertTime,
           },
           notificationRhythm,
           timeZone,

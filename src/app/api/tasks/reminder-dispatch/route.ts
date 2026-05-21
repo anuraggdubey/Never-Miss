@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminDb, getAdminMessaging } from "@/lib/firebase-admin";
 import type { NotificationRhythm } from "@/lib/models";
 
-type ReminderType = "day_before" | "ten_minutes_before";
+type ReminderType = "day_before" | "ten_minutes_before" | "custom";
 
 function parseTimeToMinutes(value?: string | null) {
   if (!value || !/^\d{2}:\d{2}$/.test(value)) return 9 * 60;
@@ -44,7 +44,17 @@ function isStillDue(args: {
   localMinutes: number;
   eventDate: string;
   eventTime?: string | null;
+  alertDate?: string | null;
+  alertTime?: string | null;
 }) {
+  if (args.reminderType === "custom") {
+    const alertMinutes = parseTimeToMinutes(args.alertTime);
+    return Boolean(args.alertDate) &&
+      args.localDate === args.alertDate &&
+      args.localMinutes >= alertMinutes &&
+      args.localMinutes < alertMinutes + 10;
+  }
+
   const eventMinutes = parseTimeToMinutes(args.eventTime);
   const rhythmAllows = args.rhythm === "both" || args.rhythm === args.reminderType;
   if (!rhythmAllows) return false;
@@ -76,6 +86,9 @@ export async function POST(request: Request) {
       momentId?: string;
       reminderType?: ReminderType;
       expectedDate?: string;
+      expectedSourceDate?: string;
+      expectedAlertDate?: string | null;
+      expectedAlertTime?: string | null;
       expectedTime?: string | null;
     };
 
@@ -94,12 +107,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, skipped: "moment-missing" });
     }
 
-    const moment = momentSnap.data() as { name?: string; occasion?: string; date?: string; time?: string | null };
+    const moment = momentSnap.data() as { name?: string; occasion?: string; date?: string; time?: string | null; alertDate?: string | null; alertTime?: string | null };
     if (!moment.name || !moment.occasion || !moment.date) {
       return NextResponse.json({ ok: true, skipped: "moment-invalid" });
     }
 
-    if (moment.date !== body.expectedDate || (moment.time ?? null) !== (body.expectedTime ?? null)) {
+    if (body.expectedSourceDate && moment.date !== body.expectedSourceDate) {
+      return NextResponse.json({ ok: true, skipped: "moment-changed" });
+    }
+
+    if ((moment.time ?? null) !== (body.expectedTime ?? null)) {
+      return NextResponse.json({ ok: true, skipped: "moment-changed" });
+    }
+
+    if ((moment.alertDate ?? null) !== (body.expectedAlertDate ?? null) || (moment.alertTime ?? null) !== (body.expectedAlertTime ?? null)) {
       return NextResponse.json({ ok: true, skipped: "moment-changed" });
     }
 
@@ -113,8 +134,10 @@ export async function POST(request: Request) {
       rhythm,
       localDate: localNow.date,
       localMinutes: localNow.minutes,
-      eventDate: moment.date,
+      eventDate: body.expectedDate,
       eventTime: moment.time,
+      alertDate: body.expectedAlertDate ?? moment.alertDate ?? null,
+      alertTime: body.expectedAlertTime ?? moment.alertTime ?? null,
     })) {
       return NextResponse.json({ ok: true, skipped: "no-longer-due" });
     }
@@ -127,12 +150,16 @@ export async function POST(request: Request) {
     const response = await getAdminMessaging().sendEachForMulticast({
       tokens,
       notification: {
-        title: body.reminderType === "day_before"
-          ? `${moment.name}'s ${moment.occasion} is in 24 hours`
-          : `${moment.name}'s ${moment.occasion} is in 10 minutes`,
-        body: body.reminderType === "day_before"
-          ? `A reminder is ready for ${moment.name}.`
-          : `It's almost time to reach out to ${moment.name}.`,
+        title: body.reminderType === "custom"
+          ? `Reminder for ${moment.name}`
+          : body.reminderType === "day_before"
+            ? `${moment.name}'s ${moment.occasion} is in 24 hours`
+            : `${moment.name}'s ${moment.occasion} is in 10 minutes`,
+        body: body.reminderType === "custom"
+          ? `Your scheduled alert for ${moment.name} is due now.`
+          : body.reminderType === "day_before"
+            ? `A reminder is ready for ${moment.name}.`
+            : `It's almost time to reach out to ${moment.name}.`,
       },
       data: {
         route: "/notifications",

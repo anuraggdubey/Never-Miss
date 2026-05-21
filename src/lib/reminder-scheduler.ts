@@ -1,15 +1,15 @@
 import { GoogleAuth } from "google-auth-library";
 import type { NotificationRhythm } from "./models";
+import { getNextOccurrenceIso, getUtcDateForLocal } from "./utils";
 
 type SchedulableMoment = {
   date: string;
   time?: string;
+  alertDate?: string;
+  alertTime?: string;
 };
 
-type ReminderType = "day_before" | "ten_minutes_before";
-
-const DEFAULT_HOUR = 9;
-const DEFAULT_MINUTE = 0;
+type ReminderType = "day_before" | "ten_minutes_before" | "custom";
 
 function getRequiredEnv(name: string) {
   const value = process.env[name];
@@ -17,44 +17,18 @@ function getRequiredEnv(name: string) {
   return value;
 }
 
-function parseLocalDateTime(date: string, time?: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hours, minutes] = (time && /^\d{2}:\d{2}$/.test(time) ? time : `${String(DEFAULT_HOUR).padStart(2, "0")}:${String(DEFAULT_MINUTE).padStart(2, "0")}`)
-    .split(":")
-    .map(Number);
-
-  return { year, month, day, hours, minutes };
-}
-
-function getUtcDateForLocal(date: string, time: string | undefined, timeZone: string) {
-  const local = parseLocalDateTime(date, time);
-  const approxUtc = new Date(Date.UTC(local.year, local.month - 1, local.day, local.hours, local.minutes, 0));
-
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).formatToParts(approxUtc);
-
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  const asIfUtc = Date.UTC(
-    Number(values.year),
-    Number(values.month) - 1,
-    Number(values.day),
-    Number(values.hour),
-    Number(values.minute),
-    Number(values.second),
-  );
-  const desiredUtc = Date.UTC(local.year, local.month - 1, local.day, local.hours, local.minutes, 0);
-  return new Date(approxUtc.getTime() - (asIfUtc - desiredUtc));
-}
-
 function getScheduleTimes(moment: SchedulableMoment, rhythm: NotificationRhythm, timeZone: string) {
+  if (moment.alertDate && moment.alertTime) {
+    const customAlertUtc = getUtcDateForLocal(moment.alertDate, moment.alertTime, timeZone);
+    if (customAlertUtc.getTime() > Date.now()) {
+      return [{
+        type: "custom" as const,
+        scheduleTime: customAlertUtc.toISOString(),
+      }];
+    }
+    return [];
+  }
+
   const eventUtc = getUtcDateForLocal(moment.date, moment.time, timeZone);
   const schedules: Array<{ type: ReminderType; scheduleTime: string }> = [];
 
@@ -106,9 +80,10 @@ export async function scheduleReminderTasks(params: {
   const parent = `projects/${projectId}/locations/${location}/queues/${queue}`;
   const schedules = getScheduleTimes(params.moment, params.notificationRhythm, params.timeZone);
   const accessToken = await getAccessToken();
+  const occurrenceDate = getNextOccurrenceIso(params.moment.date, params.timeZone);
 
   await Promise.all(schedules.map(async ({ type, scheduleTime }) => {
-    const taskId = makeTaskId(params.uid, params.momentId, type, params.moment.date, params.moment.time);
+    const taskId = makeTaskId(params.uid, params.momentId, type, occurrenceDate, params.moment.time);
     const response = await fetch(`https://cloudtasks.googleapis.com/v2/${parent}/tasks`, {
       method: "POST",
       headers: {
@@ -130,7 +105,10 @@ export async function scheduleReminderTasks(params: {
               uid: params.uid,
               momentId: params.momentId,
               reminderType: type,
-              expectedDate: params.moment.date,
+              expectedDate: occurrenceDate,
+              expectedSourceDate: params.moment.date,
+              expectedAlertDate: params.moment.alertDate ?? null,
+              expectedAlertTime: params.moment.alertTime ?? null,
               expectedTime: params.moment.time ?? null,
             })).toString("base64"),
           },

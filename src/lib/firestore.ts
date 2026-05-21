@@ -13,6 +13,12 @@ import {
 import { db } from "./firebase";
 import { defaultSettings, type AppUserProfile, type Moment, type PushDevice, type UserSettings, type WishDraft } from "./models";
 
+function omitUndefined<T extends Record<string, unknown>>(data: T) {
+  return Object.fromEntries(
+    Object.entries(data).filter(([, value]) => value !== undefined),
+  ) as T;
+}
+
 function usersCollection() {
   return collection(db, "users");
 }
@@ -101,19 +107,19 @@ export function subscribeToMoments(uid: string, onValue: (moments: Moment[]) => 
 }
 
 export async function createMoment(uid: string, moment: Omit<Moment, "id">) {
-  const docRef = await addDoc(userMomentsCollection(uid), {
+  const docRef = await addDoc(userMomentsCollection(uid), omitUndefined({
     ...moment,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-  });
+  }));
   return docRef.id;
 }
 
 export async function updateMoment(uid: string, momentId: string, changes: Partial<Moment>) {
-  await updateDoc(doc(db, "users", uid, "moments", momentId), {
+  await updateDoc(doc(db, "users", uid, "moments", momentId), omitUndefined({
     ...changes,
     updatedAt: serverTimestamp(),
-  });
+  }));
 }
 
 export async function saveWishDraft(uid: string, draft: Omit<WishDraft, "id">) {

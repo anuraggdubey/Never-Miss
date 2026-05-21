@@ -18,6 +18,8 @@ const defaultMoment = {
   occasion: "birthday" as Occasion,
   date: "",
   time: "",
+  alertDate: "",
+  alertTime: "",
   relation: "",
   note: "",
 };
@@ -45,9 +47,22 @@ export default function Dashboard() {
     );
   }, [moments, query]);
 
-  const upcoming = filtered
-    .filter((moment) => daysUntil(moment.date) >= 0)
-    .sort((a, b) => daysUntil(a.date) - daysUntil(b.date));
+  const visibleMoments = useMemo(() => [...filtered].sort((a, b) => {
+    const daysA = daysUntil(a.date);
+    const daysB = daysUntil(b.date);
+    const isPastA = daysA < 0;
+    const isPastB = daysB < 0;
+
+    if (isPastA !== isPastB) {
+      return isPastA ? 1 : -1;
+    }
+
+    if (isPastA && isPastB) {
+      return daysB - daysA;
+    }
+
+    return daysA - daysB;
+  }), [filtered]);
 
   async function handleCreateMoment() {
     if (!user || !draft.name.trim() || !draft.date) return;
@@ -59,6 +74,8 @@ export default function Dashboard() {
         occasion: draft.occasion,
         date: draft.date,
         time: draft.time || undefined,
+        alertDate: draft.alertDate && draft.alertTime ? draft.alertDate : undefined,
+        alertTime: draft.alertDate && draft.alertTime ? draft.alertTime : undefined,
         relation: draft.relation.trim(),
         note: draft.note.trim(),
         yearsTracked: 1,
@@ -144,6 +161,12 @@ export default function Dashboard() {
             <Field label="Time (optional)">
               <input className="field" type="time" value={draft.time} onChange={(event) => setDraft({ ...draft, time: event.target.value })} />
             </Field>
+            <Field label="Alert date (optional)">
+              <input className="field" type="date" value={draft.alertDate} onChange={(event) => setDraft({ ...draft, alertDate: event.target.value })} />
+            </Field>
+            <Field label="Alert time (optional)">
+              <input className="field" type="time" value={draft.alertTime} onChange={(event) => setDraft({ ...draft, alertTime: event.target.value })} />
+            </Field>
             <Field label="Relation">
               <input className="field" value={draft.relation} onChange={(event) => setDraft({ ...draft, relation: event.target.value })} placeholder="Friend" />
             </Field>
@@ -151,7 +174,7 @@ export default function Dashboard() {
               <textarea className="field min-h-28 resize-none" value={draft.note} onChange={(event) => setDraft({ ...draft, note: event.target.value })} placeholder="A short note" />
             </Field>
             <div className="md:col-span-2 rounded-2xl bg-surface/70 px-4 py-3 text-xs text-ink/55 shadow-neu-in">
-              Add a time if you want exact reminders like 10 minutes before. Without a time, reminders default to the start of the day in your selected timezone.
+              Add an alert date and time if you want one exact notification for this entry. Leave them empty to keep the default reminder timing.
             </div>
             <div className="flex flex-col gap-3 md:col-span-2 sm:flex-row">
               <button className="btn-primary" onClick={() => void handleCreateMoment()} disabled={saving}>
@@ -165,7 +188,7 @@ export default function Dashboard() {
         )}
 
         <section className="space-y-4">
-          {upcoming.length ? upcoming.map((moment, index) => {
+          {visibleMoments.length ? visibleMoments.map((moment, index) => {
             const Icon = occasionIcon[moment.occasion];
             return (
               <motion.div
@@ -183,6 +206,7 @@ export default function Dashboard() {
                         {moment.occasion}
                       </span>
                       <span>{relativeWhen(moment.date)}{moment.time ? ` at ${moment.time}` : ""}</span>
+                      {moment.alertDate && moment.alertTime ? <span>Alert: {moment.alertDate} at {moment.alertTime}</span> : null}
                     </div>
                     <h2 className="font-display text-3xl break-words">{moment.name}</h2>
                     {(moment.relation || moment.note) && (
@@ -204,7 +228,10 @@ export default function Dashboard() {
               </motion.div>
             );
           }) : (
-            <PageState title="No entries yet." body="Add your first date to start building your timeline." />
+            <PageState
+              title={query.trim() ? "No matching entries." : "No entries yet."}
+              body={query.trim() ? "Try a different search term or clear the filter." : "Add your first date to start building your timeline."}
+            />
           )}
         </section>
       </div>
